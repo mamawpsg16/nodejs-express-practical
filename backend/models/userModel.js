@@ -14,7 +14,7 @@ const schema = mongoose.Schema({
     password:{
         type:String,
         required:[true, "Please add password"]
-    }
+    },
 }, {
     timestamps:true
 })

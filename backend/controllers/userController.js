@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import { formatValidationErrors } from '../helpers/errorFormatter.js';
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' })
 // Helper function to validate email
 
 
@@ -70,6 +72,35 @@ const login = asyncHandler(async (req, res) =>{
     res.status(200).json({accessToken});
 });
 
+// @desc Authenticate/Login user
+// @route POST /api/users/login
+// @access public
+const uploadProfile = asyncHandler(async (req, res) => {
+    // Check for validation errors (if any validation middleware is used)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+    // Check if a file was uploaded
+    if (!req.file) {
+        return res.status(400).json({ errors: { file: "No file uploaded" } });
+    }
+
+    // Get the logged-in user (assuming you have user ID from authentication middleware)
+    const userId = req.user.id; // Adjust according to your authentication setup
+    console.log(userId, "userId");
+    // Update the user's profile with the uploaded file path
+    const user = await User.findByIdAndUpdate(userId, {
+        profile: req.file.path
+    }, { new: true });
+
+    if (!user) {
+        return res.status(404).json({ errors: { msg: "User not found" }});
+    }
+
+    res.status(200).json({ message: 'Profile picture updated successfully', profilePicture: req.file.path });
+});
+
 
 // @desc Get User Details
 // @route GET /api/users/:id
@@ -85,4 +116,5 @@ export {
     register, 
     login,
     user,
+    uploadProfile
 }
