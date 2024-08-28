@@ -1,23 +1,26 @@
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 
-const validateToken = asyncHandler(async(req, res, next) =>{
-    let token;
-    let authHeader = req.headers.Authorization || req.headers.authorization;
-    if(authHeader.startsWith('Bearer')){
-        token = authHeader?.split(' ')[1];
-        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-            res.status(401);
-            if(err) throw new Error('User is not authorized');
-            req.user = decoded.user;
-            next();
-        });
-
-        if(!token){
-            res.status(401);
-            throw new Error('User is not authorized or token is missing');
-        }
+const validateToken = asyncHandler(async (req, res, next) => {
+    const authHeader = req.headers['authorization']; // Case-insensitive access to 'authorization'
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'User is not authorized or token is missing' });
     }
-})
+
+    const token = authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token is missing' });
+    }
+
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        req.user = decoded.user;
+        next(); // Proceed to the next middleware or route handler
+    });
+});
 
 export default validateToken;

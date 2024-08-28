@@ -5,7 +5,17 @@ import Contact from '../models/contactModel.js';
 // @route GET /api/contacts
 // @access private
 const getContacts = asyncHandler(async (req, res) => {
-    const contacts = await Contact.find({user_id: req.user.id});
+    // const user = req.user;
+    // if (!user || user.id) {
+    //     res.status(401);
+    //     throw new Error("Unauthorized");
+    // }
+
+    /** GET ALL CONTACTS OF AUTHENTICATED USER */
+    // const contacts = await Contact.find({user_id: req.user.id});
+    /** GET ALL CONTACTS */
+    const contacts = await Contact.find({});
+    // const contact = await Contact.findOne({name:"kevin", age:20}).exec();
     res.status(200).json(contacts);
 })
 
