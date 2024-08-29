@@ -74,14 +74,14 @@ import apiClient from '@/utils/http/axios.js';
 
 
             async submitForm () {
-                const isFormValid = await this.v$.$validate()
+                // const isFormValid = await this.v$.$validate()
                  // Update errors for all fields
-                if(!isFormValid) {
-                    Object.keys(this.formValidations).forEach(field => {
-                        this.errors[field] = checkInputValidity(this.v$, field, 'form', this.formValidations[field])
-                    });
-                    return;
-                }
+                // if(!isFormValid) {
+                //     Object.keys(this.formValidations).forEach(field => {
+                //         this.errors[field] = checkInputValidity(this.v$, field, 'form', this.formValidations[field])
+                //     });
+                //     return;
+                // }
                 
                 try {
                     const response = await apiClient.post('/login',{ ...this.form })

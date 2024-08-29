@@ -3,8 +3,9 @@ import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
-import { formatValidationErrors } from '../helpers/errorFormatter.js';
+import { formatValidationErrors, joiFormatValidationErrors } from '../helpers/errorFormatter.js';
 import multer from 'multer';
+import joiLoginValidation from '../validators/authentication/joiLoginValidation.js';
 const upload = multer({ dest: 'uploads/' })
 // Helper function to validate email
 
@@ -48,12 +49,13 @@ const register = asyncHandler(async (req, res) => {
 // @route POST /api/users/login
 // @access public
 const login = asyncHandler(async (req, res) =>{
-    const errors = validationResult(req);
-    console.log(errors,"errors");
-    if (!errors.isEmpty()) {
-        const formattedErrors = formatValidationErrors(errors.array());
+    const { error } = joiLoginValidation.validate(req.body);
+    console.log(error,"error");
+    if (error) {
+        const formattedErrors = joiFormatValidationErrors(error.details);
         return res.status(422).json({ errors: formattedErrors });
     }
+    
     const  { email, password } = req.body;
 
     const user  = await User.findOne({ email: email});
